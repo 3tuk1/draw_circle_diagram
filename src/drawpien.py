@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams, font_manager
+import sys
 
 # フォント設定
 font_path = os.path.join('..', 'Noto_Sans_JP', 'static', 'NotoSansJP-Regular.ttf')
@@ -14,6 +15,9 @@ else:
     # バックアップとして日本語対応フォントを設定
     plt.rcParams['font.family'] = ['sans-serif']
     plt.rcParams['font.sans-serif'] = ['IPAexGothic', 'Yu Gothic', 'Meiryo', 'Takao']
+
+
+
 
 
 def draw_circle_diagram(V, I1, Is1, I2, Is2, R1, R2, P_1):
@@ -230,7 +234,17 @@ def draw_circle_diagram(V, I1, Is1, I2, Is2, R1, R2, P_1):
 
     # 図の表示
     plt.tight_layout()
-    output_dir = os.path.join('..', 'output')
+
+    def get_output_dir():
+        if getattr(sys, 'frozen', False):
+            # exeファイルの場合は実行ファイルと同じディレクトリに出力
+            return os.path.join(os.path.dirname(sys.executable), 'output')
+        else:
+            # 通常実行の場合は相対パスで出力
+            return os.path.join('..', 'output')
+
+    # draw_circle_diagram関数内で以下のように変更
+    output_dir = get_output_dir()
     # 出力ディレクトリの作成
     os.makedirs(output_dir, exist_ok=True)
 
@@ -292,19 +306,26 @@ def draw_circle_diagram(V, I1, Is1, I2, Is2, R1, R2, P_1):
 
 # メイン実行部
 if __name__ == '__main__':
-    try:
-        print("円線図作成のためのパラメータを入力してください:")
-        V_val = float(input("V [V]: "))
-        I1_val = float(input("I1 [A]: "))
-        Is1_val = float(input("Is1 [A]: "))
-        I2_val = float(input("I2 [A]: "))
-        Is2_val = float(input("Is2 [A]: "))
-        R1_val = float(input("R1 [Ω]: "))
-        R2_val = float(input("R2 [Ω]: "))
-        P1_val = float(input("P_1 [W]: "))
+    # メイン実行部
+    if __name__ == '__main__':
+        try:
+            print("円線図作成のためのパラメータを入力してください:")
+            V_val = float(input("定格電圧V [V]: "))
+            I1_val = float(input("I1 [A]: "))
+            Is1_val = float(input("Is1 [A]: "))
+            I2_val = float(input("I2 [A]: "))
+            Is2_val = float(input("Is2 [A]: "))
+            R1_val = float(input("R1 [Ω]: "))
+            R2_val = float(input("R2 [Ω]: "))
+            P1_val = float(input("多分2200です→定格電力P_1 [W]: "))
 
-        draw_circle_diagram(V_val, I1_val, Is1_val, I2_val, Is2_val, R1_val, R2_val, P1_val)
-    except ValueError:
-        print("数値を入力してください。")
-        print("テスト値を使用します: V=200, I1=0.291, Is1=2.77, I2=3.48, Is2=5.7, R1=0.7, R2=1.5, P_1=2200")
-        draw_circle_diagram(200, 0.291, 20.58, 3.48, 42.32, 0.7, 1.5, 2200)
+            draw_circle_diagram(V_val, I1_val, Is1_val, I2_val, Is2_val, R1_val, R2_val, P1_val)
+        except ValueError:
+            print("数値を入力してください。")
+            print("テスト値を使用します: V=200, I1=0.291, Is1=20.58, I2=3.48, Is2=42.32, R1=0.7, R2=1.5, P_1=2200")
+            draw_circle_diagram(200, 0.291, 20.58, 3.48, 42.32, 0.7, 1.5, 2200)
+
+        # 処理完了後にキー入力を待って終了
+        if getattr(sys, 'frozen', False):
+            print("\n処理が完了しました。何かキーを押すと終了します...")
+            input()
